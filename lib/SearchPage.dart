@@ -126,7 +126,7 @@ class _SearchPageState extends State<SearchPage> {
               itemCount: displayData.length,
               itemBuilder: (context, index) {
                 final bus = displayData[index];
-                int occupancy = bus['passengerIds'].length;
+                int occupancy = bus['passengerIds'] != null ? bus['passengerIds'].length : 0;
                 int availableSeats = occupancy >= 30 ? 0 : 30 - occupancy;
 
                 return Card(
@@ -148,7 +148,7 @@ class _SearchPageState extends State<SearchPage> {
                       onPressed: () async {
                         final List<Map<String, dynamic>> passengerData =
                         await fetchPassengerData(
-                            List<String>.from(bus['passengerIds']));
+                            List<String>.from(bus['passengerIds'] ?? [])); // Add null check here
                         Navigator.push(
                           context,
                           MaterialPageRoute(

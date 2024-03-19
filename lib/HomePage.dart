@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:geolocator/geolocator.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -18,6 +18,9 @@ class _HomePageState extends State<HomePage> {
   double currentZoom = 10.0;
   late StreamController<List<Map<String, dynamic>>> _locationStreamController;
   late Future<List<Map<String, dynamic>>> _geolocationFuture;
+  LatLng? _userLocation;
+  List<Marker> _markers = [];
+  final MapController _mapController = MapController();
 
   @override
   void initState() {
@@ -26,6 +29,7 @@ class _HomePageState extends State<HomePage> {
     _geolocationFuture = fetchGeolocationData();
     // Start fetching data continuously
     fetchDataContinuously();
+    _getUserLocation(); // Get user location when the app starts
   }
 
   @override
@@ -92,9 +96,12 @@ class _HomePageState extends State<HomePage> {
           } else {
             // Display map with markers
             return FlutterMap(
+              mapController: _mapController, // Use the map controller
               options: MapOptions(
-                initialCenter: LatLng(11.914060, 79.810745),
-                initialZoom: 6,
+                center: _userLocation != null
+                    ? _userLocation!
+                    : LatLng(11.914060, 79.810745),
+                zoom: _userLocation != null ? 16.0 : 6.0,
                 onPositionChanged: (MapPosition position, bool hasGesture) {
                   setState(() {
                     currentZoom = position.zoom!;
@@ -107,36 +114,49 @@ class _HomePageState extends State<HomePage> {
                   userAgentPackageName: 'com.example.app',
                 ),
                 MarkerLayer(
-                  markers: snapshot.data!
-                      .map(
-                        (bus) {
-                      final List<dynamic> location = bus['location'];
-                      final LatLng busLocation = LatLng(location[0], location[1]);
-                      final String busName = bus['name'];
-
-                      // TODO: Calculate time difference
-
-                      return Marker(
-                        point: busLocation,
-                        child: GestureDetector(
-                          onTap: () {
-                            // Show tooltip when marker is tapped
-                            final RenderBox renderBox = context.findRenderObject() as RenderBox;
-                            final Offset localOffset = renderBox.localToGlobal(Offset.zero);
-                            final Offset tapPosition = localOffset.translate(20.0, 60.0); // Adjust the vertical offset as needed
-
-                            showTooltip(context, tapPosition, busName, bus['passengerIds'].length);
-                          },
-                          child: Image(
-                            image: AssetImage("asset/images/bus.png"),
-                            width: 40,
-                            height: 40,
-                          ),
+                  markers: [
+                    if (_userLocation != null)
+                      Marker(
+                        point: _userLocation!,
+                        child: Icon(
+                          Icons.location_pin,
+                          color: Colors.blue,
+                          size: 40,
                         ),
-                      );
-                    },
-                  )
-                      .toList(),
+                      ),
+                    ...snapshot.data!
+                        .map(
+                          (bus) {
+                        final List<dynamic> location = bus['location'];
+                        final LatLng busLocation = LatLng(location[0], location[1]);
+                        final String busName = bus['name'];
+
+                        // TODO: Calculate time difference
+
+                        return Marker(
+                          point: busLocation,
+                          child: GestureDetector(
+                            onTap: () {
+                              // Show tooltip when marker is tapped
+                              final RenderBox renderBox = context.findRenderObject() as RenderBox;
+                              final Offset localOffset = renderBox.localToGlobal(Offset.zero);
+                              final Offset tapPosition = localOffset.translate(20.0, 60.0); // Adjust the vertical offset as needed
+
+                              showTooltip(context, tapPosition, busName, bus['passengerIds'].length);
+                            },
+                            child: Image(
+                              image: AssetImage("asset/images/bus.png"),
+                              width: 40,
+                              height: 40,
+                            ),
+                          ),
+                          width: currentZoom*3,
+                          height: currentZoom*3,
+                        );
+                      },
+                    )
+                        .toList(),
+                  ],
                 ),
               ],
             );
@@ -148,9 +168,7 @@ class _HomePageState extends State<HomePage> {
         child: FloatingActionButton(
           onPressed: () {
             // Add your logic to find the user's location
-            // You can use packages like location or geolocator for this purpose
-            // For demonstration, let's print a message for now
-            print("Find My Location button pressed");
+            _getUserLocation();
           },
           child: Icon(Icons.location_searching,color: Colors.white,),
           backgroundColor: Colors.black87,
@@ -200,6 +218,28 @@ class _HomePageState extends State<HomePage> {
     // Close the tooltip after a delay (adjust as needed)
     Future.delayed(Duration(seconds: 10), () {
       overlayEntry?.remove();
+    });
+  }
+
+  Future<void> _getUserLocation() async {
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    setState(() {
+      _userLocation = LatLng(position.latitude, position.longitude);
+      _markers = [
+        Marker(
+          point: _userLocation!,
+          child: Icon(
+            Icons.my_location_sharp,
+            color: Colors.blue,
+          ),
+        ),
+      ];
+
+      // Zoom to the user's location
+      _mapController.move(_userLocation!, 16.0);
     });
   }
 }
