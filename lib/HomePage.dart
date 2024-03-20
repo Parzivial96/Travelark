@@ -142,7 +142,7 @@ class _HomePageState extends State<HomePage> {
                               final Offset localOffset = renderBox.localToGlobal(Offset.zero);
                               final Offset tapPosition = localOffset.translate(20.0, 60.0); // Adjust the vertical offset as needed
 
-                              showTooltip(context, tapPosition, busName, bus['passengerIds'].length);
+                              showTooltip(context, tapPosition, busName, bus['history'].last['passengerIds'].length);
                             },
                             child: Image(
                               image: AssetImage("asset/images/bus.png"),

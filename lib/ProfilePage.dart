@@ -40,51 +40,92 @@ class _ProfilePageState extends State<ProfilePage> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('passengerData'); // Clear user data
     await prefs.setBool('isLoggedIn', false); // Clear login flag
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => const LoginPage()));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: Text(
+          'Profile',
+          style: TextStyle(fontFamily: "Popins", fontSize: 26),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.black87,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20),
+          ),
+        ),
+        toolbarHeight: 80,
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : _userData.isNotEmpty
-          ? Center(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(height: 20),
-            CircleAvatar(
-              radius: 50,
-              backgroundImage: AssetImage("asset/images/profileicon.png"),
-              backgroundColor: Colors.black87,
-            ),
-            SizedBox(height: 20),
-            Text(
-              _userData['name'] ?? 'Name not available',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Text(
-              _userData['phone'] ?? 'Phone number not available',
-              style: TextStyle(fontSize: 16),
-            ),
-            Spacer(),
-            ElevatedButton(
-              onPressed: () => _logout(context),
-              child: const Text('Logout', style: TextStyle(color: Colors.white,fontFamily: 'Popins'),),
-              style: ButtonStyle(fixedSize: MaterialStatePropertyAll(Size(150, 50)),backgroundColor: MaterialStatePropertyAll(Colors.black87)),
-            ),
-            SizedBox(height: 20),
-          ],
+          ? SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                radius: 50,
+                backgroundImage:
+                AssetImage("asset/images/profileicon.png"),
+                backgroundColor: Colors.black87,
+              ),
+              SizedBox(height: 20),
+              _buildProfileItem(label: 'ID', value: _userData['rfid'] ?? 'ID not available'),
+              _buildProfileItem(label: 'Name', value: _userData['name'] ?? 'Name not available'),
+              _buildProfileItem(label: 'Phone', value: _userData['phone'] ?? 'Phone number not available'),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => _logout(context),
+                child: const Text(
+                  'Logout',
+                  style: TextStyle(color: Colors.white, fontFamily: 'Popins'),
+                ),
+                style: ButtonStyle(
+                  fixedSize:
+                  MaterialStateProperty.all(Size(150, 50)),
+                  backgroundColor:
+                  MaterialStateProperty.all(Colors.black87),
+                ),
+              ),
+              SizedBox(height: 20),
+            ],
+          ),
         ),
       )
           : Center(
         child: Text('No user data available'),
       ),
+    );
+  }
+
+  Widget _buildProfileItem({required String label, required String value}) {
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[600],
+            ),
+          ),
+          SizedBox(height: 5),
+          Text(
+            value,
+            style: TextStyle(fontSize: 16),
+          ),
+          Divider(), // Add a divider between items
+        ],
     );
   }
 }

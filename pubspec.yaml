@@ -35,7 +35,7 @@ dependencies:
   flutter_map_marker_cluster: any
   flutter_map_marker_popup: any
   dio: any
-  geolocator: ^7.6.2
+  geolocator: any
   shared_preferences: any
 
 

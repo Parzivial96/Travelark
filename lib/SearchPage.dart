@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'dart:convert';
 
+import 'package:travelark_app/DetailedInfoPage.dart';
+
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
 
@@ -60,6 +62,21 @@ class _SearchPageState extends State<SearchPage> {
       throw Exception('Error fetching passenger data: $e');
     }
   }
+
+  List<String> extractPassengerIds(Map<String, dynamic> busData) {
+    List<dynamic>? history = busData['history'];
+    if (history != null && history.isNotEmpty) {
+      Map<String, dynamic>? lastHistory = history.last;
+      if (lastHistory != null && lastHistory.isNotEmpty && lastHistory.containsKey("passengerIds")) {
+        List<dynamic> passengerIds = lastHistory["passengerIds"];
+        if (passengerIds.isNotEmpty && passengerIds.every((element) => element is String)) {
+          return List<String>.from(passengerIds);
+        }
+      }
+    }
+    return [];
+  }
+
 
   void _filterBusData(String query) {
     setState(() {
@@ -126,7 +143,7 @@ class _SearchPageState extends State<SearchPage> {
               itemCount: displayData.length,
               itemBuilder: (context, index) {
                 final bus = displayData[index];
-                int occupancy = bus['passengerIds'] != null ? bus['passengerIds'].length : 0;
+                int occupancy = extractPassengerIds(bus).length;
                 int availableSeats = occupancy >= 30 ? 0 : 30 - occupancy;
 
                 return Card(
@@ -146,9 +163,9 @@ class _SearchPageState extends State<SearchPage> {
                     trailing: IconButton(
                       icon: Icon(Icons.arrow_forward_ios),
                       onPressed: () async {
+                        final List<String> passengerIds = extractPassengerIds(bus);
                         final List<Map<String, dynamic>> passengerData =
-                        await fetchPassengerData(
-                            List<String>.from(bus['passengerIds'] ?? [])); // Add null check here
+                        await fetchPassengerData(passengerIds);
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -166,79 +183,6 @@ class _SearchPageState extends State<SearchPage> {
             );
           }
         },
-      ),
-    );
-  }
-}
-
-
-class DetailedInfoPage extends StatelessWidget {
-  final String busName;
-  final List<Map<String, dynamic>> passengerData;
-
-  const DetailedInfoPage({
-    Key? key,
-    required this.busName,
-    required this.passengerData,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Detailed Info - $busName'),
-        backgroundColor: Colors.black87,
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(20),
-            bottomRight: Radius.circular(20),
-          ),
-        ),
-        toolbarHeight: 100,
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Passenger List',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: passengerData.length,
-              itemBuilder: (context, index) {
-                final passenger = passengerData[index];
-                return Card(
-                  elevation: 3,
-                  margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: ListTile(
-                    title: Text(
-                      'Passenger Name: ${passenger['name']}',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('ID: ${passenger['rfid']}'),
-                        Text('Stopping: ${passenger['stopping']}'),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
       ),
     );
   }

@@ -77,18 +77,30 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false, // Set to false to prevent resizing
       appBar: AppBar(
-        title: const Text('Login'),
+        title: Text('Welcome to TravelArk', style: TextStyle(fontFamily: "Popins", fontSize: 26),),
+        centerTitle: true,
+        backgroundColor: Colors.black87,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20),
+          ),
+        ),
+        toolbarHeight: 80,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0), // Adjust vertical padding here
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Image.asset("asset/images/login.png"),
             TextField(
               controller: _phoneNumberController,
               decoration: const InputDecoration(
                 labelText: 'Phone Number',
+                prefixIcon: Icon(Icons.phone),
               ),
             ),
             const SizedBox(height: 16.0),
@@ -96,6 +108,7 @@ class _LoginPageState extends State<LoginPage> {
               controller: _passwordController,
               decoration: InputDecoration(
                 labelText: 'Password',
+                prefixIcon: Icon(Icons.lock),
                 suffixIcon: IconButton(
                   icon: Icon(
                     _isPasswordVisible ? Icons.visibility : Icons.visibility_off,

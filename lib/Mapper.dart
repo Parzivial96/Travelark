@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travelark_app/HomePage.dart';
 import 'package:travelark_app/ProfilePage.dart';
 import 'package:travelark_app/SearchPage.dart';
+import 'package:travelark_app/SignupPage.dart';
 
 class Mapper extends StatefulWidget {
   const Mapper({Key? key}) : super(key: key);
@@ -16,7 +17,7 @@ class Mapper extends StatefulWidget {
 class _MapperState extends State<Mapper> {
   int _currentIndex = 0;
   late PageController _pageController;
-  late String _userRole;
+  String? _userRole; // Make _userRole nullable
   late Map<String, dynamic> _userData;
 
   @override
@@ -45,9 +46,14 @@ class _MapperState extends State<Mapper> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
+    // Check if _userRole is null before using it
+    if (_userRole == null) {
+      // You can return a loading indicator or any other widget here
+      return CircularProgressIndicator(); // Example of a loading indicator
+    }
+
     return Scaffold(
       body: PageView(
         controller: _pageController,
@@ -78,42 +84,47 @@ class _MapperState extends State<Mapper> {
   }
 
   List<Widget> _buildPages() {
-    switch (_userRole) {
-      case 'Admin':
-        return [HomePage(), SearchPage(), ProfilePage()];
-      default:
-        return [HomePage(), ProfilePage()];
+    // Check if _userRole is null before accessing it
+    if (_userRole == 'Admin') {
+      return [HomePage(), SearchPage(), SignupPage(),ProfilePage()];
+    } else {
+      return [HomePage(), ProfilePage()];
     }
   }
 
   List<BottomNavigationBarItem> _buildNavigationItems() {
-    switch (_userRole) {
-      case 'Admin':
-        return [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home, color: _currentIndex == 0 ? Colors.white : Colors.grey),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search, color: _currentIndex == 1 ? Colors.white : Colors.grey),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person, color: _currentIndex == 2 ? Colors.white : Colors.grey),
-            label: 'Profile',
-          ),
-        ];
-      default:
-        return [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home, color: _currentIndex == 0 ? Colors.white : Colors.grey),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person, color: _currentIndex == 1 ? Colors.white : Colors.grey),
-            label: 'Profile',
-          ),
-        ];
+    // Check if _userRole is null before accessing it
+    if (_userRole == 'Admin') {
+      return [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home, color: _currentIndex == 0 ? Colors.white : Colors.grey),
+          label: 'Home',
+          backgroundColor: Colors.black87
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.grid_view_rounded, color: _currentIndex == 1 ? Colors.white : Colors.grey),
+          label: 'Search',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.add, color: _currentIndex == 2 ? Colors.white : Colors.grey),
+          label: 'Signup', // Label for SignupPage
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person, color: _currentIndex == 3 ? Colors.white : Colors.grey),
+          label: 'Profile',
+        ),
+      ];
+    } else {
+      return [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home, color: _currentIndex == 0 ? Colors.white : Colors.grey),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person, color: _currentIndex == 1 ? Colors.white : Colors.grey),
+          label: 'Profile',
+        ),
+      ];
     }
   }
 }
