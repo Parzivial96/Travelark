@@ -99,19 +99,22 @@ class _MapperState extends State<Mapper> {
         BottomNavigationBarItem(
           icon: Icon(Icons.home, color: _currentIndex == 0 ? Colors.white : Colors.grey),
           label: 'Home',
-          backgroundColor: Colors.black87
+          backgroundColor: Colors.black87,
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.grid_view_rounded, color: _currentIndex == 1 ? Colors.white : Colors.grey),
           label: 'Search',
+          backgroundColor: Colors.black87,
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.add, color: _currentIndex == 2 ? Colors.white : Colors.grey),
           label: 'Signup', // Label for SignupPage
+          backgroundColor: Colors.black87,
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person, color: _currentIndex == 3 ? Colors.white : Colors.grey),
           label: 'Profile',
+          backgroundColor: Colors.black87,
         ),
       ];
     } else {
@@ -119,10 +122,12 @@ class _MapperState extends State<Mapper> {
         BottomNavigationBarItem(
           icon: Icon(Icons.home, color: _currentIndex == 0 ? Colors.white : Colors.grey),
           label: 'Home',
+          backgroundColor: Colors.black87,
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person, color: _currentIndex == 1 ? Colors.white : Colors.grey),
           label: 'Profile',
+          backgroundColor: Colors.black87,
         ),
       ];
     }

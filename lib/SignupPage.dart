@@ -45,7 +45,7 @@ class _SignupPageState extends State<SignupPage> {
       };
 
       final Uri apiUrl =
-          Uri.parse('https://travelarkbackend.onrender.com/api/addPassenger');
+      Uri.parse('https://travelarkbackend.onrender.com/api/addPassenger');
 
       final response = await http.post(
         apiUrl,
@@ -147,129 +147,132 @@ class _SignupPageState extends State<SignupPage> {
         ),
         toolbarHeight: 80,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey, // Assigning form key
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: 'Name',
-                  prefixIcon: Icon(Icons.person),
+      body: SingleChildScrollView( // Wrap with SingleChildScrollView
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    labelText: 'Name',
+                    prefixIcon: Icon(Icons.person),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your name';
+                    }
+                    return null;
+                  },
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your name';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16),
-              TextFormField(
-                controller: _phoneController,
-                decoration: InputDecoration(
-                  labelText: 'Phone Number',
-                  prefixIcon: Icon(Icons.phone),
+                SizedBox(height: 16),
+                TextFormField(
+                  controller: _phoneController,
+                  decoration: InputDecoration(
+                    labelText: 'Phone Number',
+                    prefixIcon: Icon(Icons.phone),
+                  ),
+                  keyboardType: TextInputType.phone,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your phone number';
+                    }
+                    return null;
+                  },
                 ),
-                keyboardType: TextInputType.phone,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your phone number';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16),
-              TextFormField(
-                controller: _passwordController,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  prefixIcon: Icon(Icons.lock),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _showPassword ? Icons.visibility : Icons.visibility_off,
-                      color: Colors.grey,
+                SizedBox(height: 16),
+                TextFormField(
+                  controller: _passwordController,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    prefixIcon: Icon(Icons.lock),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _showPassword ? Icons.visibility : Icons.visibility_off,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _showPassword = !_showPassword;
+                        });
+                      },
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _showPassword = !_showPassword;
-                      });
-                    },
+                  ),
+                  obscureText: !_showPassword,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a password';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16),
+                TextFormField(
+                  controller: _rfidController,
+                  decoration: InputDecoration(
+                    labelText: 'RFID',
+                    prefixIcon: Icon(Icons.credit_card),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter an RFID';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: _selectedRole,
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedRole = newValue!;
+                    });
+                  },
+                  items: <String>['Admin', 'Passenger', 'Driver']
+                      .map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value, style: TextStyle(
+                          fontFamily: 'popins', fontWeight: FontWeight.w500),),
+                    );
+                  }).toList(),
+                  decoration: InputDecoration(
+                    labelText: 'Role',
+                    prefixIcon: Icon(Icons.person_outline),
+                  ),
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please select a role';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _signUp,
+                    child: _isLoading
+                        ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(),
+                    )
+                        : Text(
+                      'Sign Up',
+                      style: TextStyle(
+                          color: Colors.white, fontFamily: 'Popins'),
+                    ),
+                    style: ButtonStyle(
+                        fixedSize: MaterialStatePropertyAll(Size(150, 50)),
+                        backgroundColor:
+                        MaterialStatePropertyAll(Colors.black87)),
                   ),
                 ),
-                obscureText: !_showPassword,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a password';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16),
-              TextFormField(
-                controller: _rfidController,
-                decoration: InputDecoration(
-                  labelText: 'RFID',
-                  prefixIcon: Icon(Icons.credit_card),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter an RFID';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: _selectedRole,
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedRole = newValue!;
-                  });
-                },
-                items: <String>['Admin', 'Passenger', 'Driver']
-                    .map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value,style: TextStyle(fontFamily: 'popins',fontWeight: FontWeight.w500),),
-                  );
-                }).toList(),
-                decoration: InputDecoration(
-                  labelText: 'Role',
-                  prefixIcon: Icon(Icons.person_outline),
-                ),
-                validator: (value) {
-                  if (value == null) {
-                    return 'Please select a role';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16),
-              Center(
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _signUp,
-                  child: _isLoading
-                      ? SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(),
-                        )
-                      : Text(
-                          'Sign Up',
-                          style: TextStyle(
-                              color: Colors.white, fontFamily: 'Popins'),
-                        ),
-                  style: ButtonStyle(
-                      fixedSize: MaterialStatePropertyAll(Size(150, 50)),
-                      backgroundColor:
-                          MaterialStatePropertyAll(Colors.black87)),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
